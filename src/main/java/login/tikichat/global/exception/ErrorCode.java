@@ -44,7 +44,10 @@ public enum ErrorCode {
     NOT_FOUND_CHAT_ROOM(404, "CR001", "존재하지 않는 채팅방입니다."),
 
     // ChatRoom Participant
-    FULL_PARTICIPANT_CHAT_ROOM(409, "CRP001", "채팅방 인원의 정원이 찼습니다.")
+    FULL_PARTICIPANT_CHAT_ROOM(409, "CRP001", "채팅방 인원의 정원이 찼습니다."),
+
+    // Chat
+    NOT_CHAT_ROOM_PARTICIPANT(403, "CH001", "채팅방 참가자가 아닙니다.")
     ;
 
 
