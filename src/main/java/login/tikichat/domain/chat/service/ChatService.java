@@ -1,5 +1,6 @@
 package login.tikichat.domain.chat.service;
 
+import login.tikichat.domain.attachment.service.AttachmentService;
 import login.tikichat.domain.chat.constants.ChatReactionType;
 import login.tikichat.domain.chat.dto.ModifyReactionChatEventDto;
 import login.tikichat.domain.chat.model.ChatReaction;
@@ -16,15 +17,19 @@ import login.tikichat.domain.user.service.UserCommonService;
 import login.tikichat.global.exception.BusinessException;
 import login.tikichat.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.sql.ast.tree.expression.Collation;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,13 +42,14 @@ public class ChatService {
     private final ChatRoomCommonService chatRoomCommonService;
     private final ChatRoomParticipantService chatRoomParticipantService;
     private final ChatCommonService chatCommonService;
+    private final AttachmentService attachmentService;
 
     @Transactional
     public SendMessageDto.SendMessageResDto sendMessage(
             Long userId,
             Long chatRoomId,
             SendMessageDto.SendMessageReqDto sendMessageReqDto
-    ) {
+    ) throws IOException {
         final var chatRoom = this.chatRoomCommonService.findById(chatRoomId);
 
         this.chatRoomParticipantService.existsJoinChatRoom(chatRoomId, userId);
@@ -64,6 +70,21 @@ public class ChatService {
 
         this.chatRepository.saveAndFlush(chat);
 
+        if (sendMessageReqDto.images() != null && !sendMessageReqDto.images().isEmpty()) {
+            for (final var image : sendMessageReqDto.images()) {
+                this.attachmentService.uploadChatFile(
+                        userId,
+                        chat.getId(),
+                        image
+                );
+            }
+        }
+
+        final List<String> imageUrls = !chat.getAttachments().isEmpty() ?
+                chat.getAttachments().stream().map((chatAttachment ->
+                        this.attachmentService.getAttachmentUrl(chatAttachment.getId())
+                )).collect(Collectors.toList()) : Collections.emptyList();
+
         this.sendChatProducer.sendMessage(
                 new SendChatEventDto(
                     chat.getId(),
@@ -76,14 +97,16 @@ public class ChatService {
                             parentChat.getContent(),
                             parentChat.getSenderUserId(),
                             parentChat.getCreatedDate()
-                    ) : null
+                    ) : null,
+                    imageUrls
                 )
         );
 
         return new SendMessageDto.SendMessageResDto(
                 chat.getId(),
                 chat.getContent(),
-                chat.getCreatedDate()
+                chat.getCreatedDate(),
+                imageUrls
         );
     }
 
@@ -112,6 +135,11 @@ public class ChatService {
                         ).add(chatReaction.getUser().getId());
                     }
 
+                    final List<String> imageUrls = !chat.getAttachments().isEmpty() ?
+                            chat.getAttachments().stream().map((chatAttachment ->
+                                    this.attachmentService.getAttachmentUrl(chatAttachment.getId())
+                            )).collect(Collectors.toList()) : Collections.emptyList();
+
                     final List<FindChatsDto.FindChatReactionListRes> reactions = new ArrayList<>();
                     chatCounts.forEach((chatReactionType, list) -> {
                                 reactions.add(new FindChatsDto.FindChatReactionListRes(
@@ -133,7 +161,8 @@ public class ChatService {
                                     parentChat.getId(),
                                     parentChat.getContent(),
                                     parentChat.getCreatedDate()
-                            ) : null
+                            ) : null,
+                            imageUrls
                     );
                 }
                 ).toList(),

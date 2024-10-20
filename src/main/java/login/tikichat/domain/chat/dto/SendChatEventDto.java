@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -16,6 +17,7 @@ public class SendChatEventDto {
     private Long chatRoomId;
     private Instant createdDate;
     private SendChatParentDto parent;
+    private List<String> imageUrls;
 
     @Getter
     @AllArgsConstructor

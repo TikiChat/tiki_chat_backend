@@ -40,7 +40,8 @@ public class FindChatsDto {
             String content,
             Instant createdAt,
             List<FindChatReactionListRes> reactions,
-            FindChatsParentItemRes parentChat
+            FindChatsParentItemRes parentChat,
+            List<String> iamgeUrls
     ) {
 
     }

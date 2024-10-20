@@ -165,7 +165,7 @@ public class InitializeDefaultConfig implements CommandLineRunner {
 
         for (long i = 0; i < CHAT_COUNT; i++) {
             int randNum = random.nextInt(CHAT_ROOM_COUNT);
-            Chat chat = new Chat(i, "content" + i, 1L, chatRooms.get(randNum), Instant.now(), Set.of(chatReaction1), null);
+            Chat chat = new Chat(i, "content" + i, 1L, chatRooms.get(randNum), Instant.now(), Set.of(chatReaction1), null, null);
             chats.add(chat);
 
             if (chats.size() >= batchSize) {

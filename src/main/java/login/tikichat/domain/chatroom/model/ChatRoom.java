@@ -2,6 +2,7 @@ package login.tikichat.domain.chatroom.model;
 
 import jakarta.persistence.*;
 import login.tikichat.domain.attachment.model.Attachment;
+import login.tikichat.domain.attachment.model.ChatRoomAttachment;
 import login.tikichat.domain.category.model.Category;
 import login.tikichat.domain.chatroom_participant.model.ChatRoomParticipant;
 import login.tikichat.domain.host.model.Host;
@@ -52,7 +53,7 @@ public class ChatRoom {
     private List<ChatRoomParticipant> participants = new ArrayList<>();
 
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
-    private List<Attachment> attachments = new ArrayList<>();
+    private List<ChatRoomAttachment> attachments = new ArrayList<>();
 
     private boolean isRoomClosed;
 
@@ -80,7 +81,7 @@ public class ChatRoom {
     }
 
     // 연관관계 편의 메소드
-    public void addAttachment(Attachment attachment) {
+    public void addAttachment(ChatRoomAttachment attachment) {
         if (!this.attachments.contains(attachment)) {
             this.attachments.add(attachment);
             attachment.setChatRoom(this);

@@ -21,4 +21,9 @@ public class S3FileStorage implements FileStorage {
     public void upload(String path, InputStream file) {
         amazonS3.putObject(bucketName, path, file, new ObjectMetadata());
     }
+
+    @Override
+    public String getUrl(String path) {
+        return amazonS3.getUrl(bucketName, path).toString();
+    }
 }

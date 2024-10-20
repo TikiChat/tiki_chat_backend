@@ -1,6 +1,7 @@
 package login.tikichat.domain.chatroom.service;
 
 import login.tikichat.domain.attachment.model.Attachment;
+import login.tikichat.domain.attachment.model.ChatRoomAttachment;
 import login.tikichat.domain.category.dto.FindCategoryDto;
 import login.tikichat.domain.category.repository.CategoryRepository;
 import login.tikichat.domain.chatroom.constants.ChatRoomSortType;
@@ -87,6 +88,7 @@ public class ChatRoomService {
             host = hostOptional.get();
         } else {
             host = Host.builder()
+                    .user(user)
                     .build();
             this.hostRepository.save(host);
         }
@@ -147,7 +149,7 @@ public class ChatRoomService {
     }
 
     @Transactional
-    public void linkAttachment(Long chatRoomId, Attachment attachment) {
+    public void linkAttachment(Long chatRoomId, ChatRoomAttachment attachment) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(ChatRoomNotFoundException::new);
         chatRoom.addAttachment(attachment);
     }

@@ -5,4 +5,5 @@ import java.io.InputStream;
 
 public interface FileStorage {
     void upload(String path, InputStream InputStream) throws IOException;
+    String getUrl(String path);
 }
